@@ -1,0 +1,90 @@
+{
+  "name": "quark-router",
+  "version": "0.0.0-development",
+  "description": "Simple router",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "BABEL_ENV=production babel src -d lib",
+    "build:watch": "BABEL_ENV=production babel src -d lib -w",
+    "docs": "npm run docs:clean && documentation build src/* --format html --o docs",
+    "docs:clean": "del-cli docs/",
+    "docs:deploy": "npm run docs && gh-pages -d docs/ -m 'docs: update'",
+    "test": "cross-env BABEL_ENV=test && jest",
+    "test:watch": "npm test -- --watch",
+    "test:coverage": "npm test -- --coverage",
+    "demo": "$(npm bin)/budo demo/src/index.js:bundle.js --dir demo/public --live --open --pushstate",
+    "prepublishOnly": "npm test && npm run build",
+    "travis-deploy-once": "travis-deploy-once",
+    "semantic-release": "semantic-release"
+  },
+  "keywords": [
+    "quark",
+    "router"
+  ],
+  "author": "fm_ph",
+  "contributors": [
+    "Patrick Heng <hengpatrick.pro@gmail.com> (http://hengpatrick.fr/)",
+    "Fabien Motte <contact@fabienmotte.com> (http://fabienmotte.com/)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fm-ph/quark-router.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fm-ph/quark-router/issues"
+  },
+  "homepage": "https://github.com/fm-ph/quark-router",
+  "license": "MIT",
+  "dependencies": {
+    "history": "^4.7.2",
+    "lodash.find": "^4.6.0",
+    "lodash.merge": "^4.6.1",
+    "path-to-regexp": "^2.2.0",
+    "promise": "^8.0.1",
+    "quark-signal": "^1.1.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.22.0",
+    "babel-preset-env": "^1.6.1",
+    "babelify": "^8.0.0",
+    "budo": "^11.2.0",
+    "cross-env": "^5.1.4",
+    "del-cli": "^1.1.0",
+    "documentation": "^6.3.0",
+    "gh-pages": "^1.1.0",
+    "jest-cli": "^22.4.3",
+    "travis-deploy-once": "^4.4.1",
+    "semantic-release": "^15.1.7"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "ignore": [
+      "docs",
+      "lib"
+    ],
+    "globals": [
+      "jest",
+      "test",
+      "describe",
+      "it",
+      "expect",
+      "beforeEach",
+      "afterEach"
+    ]
+  },
+  "browserify": {
+    "transform": [
+      "babelify"
+    ]
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/test/",
+      "<rootDir>/node_modules/"
+    ]
+  }
+}

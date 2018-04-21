@@ -1,0 +1,18 @@
+{
+  "presets": [
+    "env"
+  ],
+  "plugins": [
+    "add-module-exports",
+    "transform-class-properties",
+    "transform-object-rest-spread"
+  ],
+  "env": {
+    "development": {
+      "sourceMaps": "inline",
+      "plugins": [
+        "transform-runtime"
+      ]
+    }
+  }
+}
