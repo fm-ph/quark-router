@@ -253,6 +253,12 @@ class Router {
           this.history.push(locationObj)
         }
 
+        // Instanciate component
+        if (typeof component === 'function') {
+          const pageInstance = new component() // eslint-disable-line
+          this.currentRoute.instance = pageInstance
+        }
+
         // After each hook
         const afterPromise = new Promise((resolve, reject) => {
           if (typeof this.afterEach === 'function') {
@@ -273,16 +279,15 @@ class Router {
               callback.call(this, this.currentRoute)
             }
 
-            // Instanciate component
+            // Mount component
             if (typeof component === 'function') {
-              const pageInstance = new component() // eslint-disable-line
-              this.pageInstance = pageInstance
-              this.currentRoute.instance = pageInstance
-
+              this.pageInstance = this.currentRoute.instance
               if (this.preRendered && this.isFirstRoute) {
-                pageInstance.$preRenderMount(this._mountEl.firstElementChild)
+                this.pageInstance.$preRenderMount(
+                  this._mountEl.firstElementChild
+                )
               } else {
-                pageInstance.$mount(this._mountEl, 'append')
+                this.pageInstance.$mount(this._mountEl, 'append')
               }
             }
 
