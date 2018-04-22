@@ -222,8 +222,8 @@ class Router {
       return
     }
 
-    // Next promise (before each hook)
-    const nextPromise = new Promise((resolve, reject) => {
+    // Before promise (before each hook)
+    const beforePromise = new Promise((resolve, reject) => {
       if (typeof this.beforeEach === 'function') {
         this.beforeEach(this.lastRoute, newRoute, resolve)
         this.beforeEachChanged.dispatch(this.lastRoute, newRoute, resolve)
@@ -232,9 +232,9 @@ class Router {
       }
     })
 
-    nextPromise.then((change = true) => {
+    beforePromise.then((resolved = true) => {
       // If next promise resolved truthly otherwise, cancel navigate
-      if (change) {
+      if (resolved) {
         this.currentRoute = newRoute
 
         const locationObj = {
@@ -253,37 +253,52 @@ class Router {
           this.history.push(locationObj)
         }
 
-        // Call callback
-        if (typeof callback === 'function') {
-          callback.call(this, this.currentRoute)
-        }
-
-        // Instanciate component
-        if (typeof component === 'function') {
-          const pageInstance = new component() // eslint-disable-line
-          this.pageInstance = pageInstance
-          this.currentRoute.instance = pageInstance
-
-          if (this.preRendered && this.isFirstRoute) {
-            pageInstance.$preRenderMount(this._mountEl.firstElementChild)
-          } else {
-            pageInstance.$mount(this._mountEl, 'append')
-          }
-        }
-
         // After each hook
-        if (typeof this.afterEach === 'function') {
-          this.afterEach(this.lastRoute, this.currentRoute)
-          this.afterEachChanged.dispatch(this.lastRoute, this.currentRoute)
-          this._parseAnchors()
-        }
+        const afterPromise = new Promise((resolve, reject) => {
+          if (typeof this.afterEach === 'function') {
+            this.afterEach(this.lastRoute, this.currentRoute, resolve)
+            this.afterEachChanged.dispatch(
+              this.lastRoute, this.currentRoute,
+              resolve
+            )
+          } else {
+            resolve(true)
+          }
+        })
 
-        if (this.lastRoute === null) {
-          this.isFirstRoute = false
-          this.lastRoute = newRoute
-        } else {
-          this.lastRoute = this.currentRoute
-        }
+        afterPromise.then((resolved = true) => {
+          if (resolved) {
+            // Call callback
+            if (typeof callback === 'function') {
+              callback.call(this, this.currentRoute)
+            }
+
+            // Instanciate component
+            if (typeof component === 'function') {
+              const pageInstance = new component() // eslint-disable-line
+              this.pageInstance = pageInstance
+              this.currentRoute.instance = pageInstance
+
+              if (this.preRendered && this.isFirstRoute) {
+                pageInstance.$preRenderMount(this._mountEl.firstElementChild)
+              } else {
+                pageInstance.$mount(this._mountEl, 'append')
+              }
+            }
+
+            this._parseAnchors()
+
+            if (this.lastRoute === null) {
+              this.isFirstRoute = false
+              this.lastRoute = newRoute
+            } else {
+              this.lastRoute = this.currentRoute
+            }
+          } else if (this.debugMode) {
+            console.log('%cRouter.hooks', logStyles, 'afterEach stopped ' +
+              'route change')
+          }
+        })
       } else if (this.debugMode) {
         console.log('%cRouter.hooks', logStyles, 'beforeEach stopped ' +
           'route change')
@@ -343,8 +358,11 @@ class Router {
    *
    * @param {Object} from From route.
    * @param {Object} to To route.
+   * @param {Function} next Next callback.
    */
-  afterEach (from, to) {}
+  afterEach (from, to, next) {
+    next()
+  }
 
   /**
    * Create history.
