@@ -255,7 +255,7 @@ class Router {
 
         // Call callback
         if (typeof callback === 'function') {
-          callback(this.currentRoute)
+          callback.call(this, this.currentRoute)
         }
 
         // Instanciate component
