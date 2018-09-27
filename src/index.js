@@ -309,6 +309,7 @@ class Router {
           'route change')
       }
     })
+      .catch(error => console.log('%cRouter.hooks', logStyles, error))
   }
 
   /**
